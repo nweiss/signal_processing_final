@@ -17,7 +17,7 @@ for i = 1:8
     clear n_TRAIN_FACE
     clear n_Trial
     
-    LOAD_PATH = ['Subject_', num2str(i), '.mat'];
+    LOAD_PATH = fullfile('Data', ['Subject_', num2str(i), '.mat']);
     load(LOAD_PATH);
     
     EEG_train = cat(3, EEG_train, X_EEG_TRAIN);
