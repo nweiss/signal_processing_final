@@ -2,15 +2,15 @@ clc; clear all; close all;
 
 %% SETTINGS
 % Save settings
-SAVE_DATA = true;
-PROCESSED_DATA_VERSION = 1; % which folder the data will save to (ie data_v1)
+SAVE_DATA = false;
+PROCESSED_DATA_VERSION = 2; % which folder the data will save to (ie data_v1)
 
 % EEG filter
 low_cut_off = .1;
 hi_cut_off = 55;
 
 %% Load and Preprocess data
-for subject = 1:8
+for subject = 1%1:8
     clear EEG
     clear X_EEG_TRAIN
     clear X_EEG_TEST
@@ -30,7 +30,8 @@ for subject = 1:8
     % How should we handle filtering? Using fft because getting error for
     % short epochs when using fir? When filtering epochs, converts to
     % continuous?
-    %EEG = pop_eegfilt(EEG, .1, 55, [], 0, 1, 0, [], 0);
+    pop_spectopo(EEG)
+    EEG = pop_eegfilt(EEG, .1, 55, [], 0, 1, 0, [], 0);
     
     % CAR filter?
     
