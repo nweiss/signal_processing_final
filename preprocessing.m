@@ -20,6 +20,7 @@ for subject = 1 %[1, 2, 3, 4, 5, 7, 8]
     % short epochs when using fir
     EEG = pop_eegfilt(EEG, .1, 55, [], 0, 1, 0, [], 0);
     
+    % CAR filter?
 end
 
 disp('done')
