@@ -1,13 +1,6 @@
 clc; clear all; close all;
 
-
-%% Aggregate the data
-EEG_train = [];
-EEG_test = [];
-Y = [];
-subject_key_train = [];
-subject_key_test = [];
-for i = 1:8
+for subject = 1 %[1, 2, 3, 4, 5, 7, 8]
     clear X_EEG_TRAIN
     clear X_EEG_TEST
     clear Y_EEG_TRAIN
@@ -15,14 +8,18 @@ for i = 1:8
     clear n_TEST
     clear n_TRAIN_CAR
     clear n_TRAIN_FACE
-    clear n_Trial
+    clear nTrial
     
-    LOAD_PATH = fullfile('Data', ['Subject_', num2str(i), '.mat']);
+    % Load data and import into EEGlab format
+    LOAD_PATH = fullfile('Data', ['Subject_', num2str(subject), '.mat']);
     load(LOAD_PATH);
+    EEG = pop_importdata('data', 'X_EEG_TRAIN', 'srate', 1000, 'xmin', -.2);
     
-    EEG_train = cat(3, EEG_train, X_EEG_TRAIN);
-    EEG_test = cat(3, EEG_test, X_EEG_TEST);
-    Y = cat(1, Y, Y_EEG_TRAIN);
-    subject_key_train = cat(1, subject_key_train, i*ones(n_TRAIN, 1));
-    subject_key_test = cat(1, subject_key_test, i*ones(n_TEST, 1));
+    % Filter data
+    % How should we handle filtering? Using fft because getting error for
+    % short epochs when using fir
+    EEG = pop_eegfilt(EEG, .1, 55, [], 0, 1, 0, [], 0);
+    
 end
+
+disp('done')
