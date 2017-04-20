@@ -10,7 +10,7 @@ low_cut_off = .1;
 hi_cut_off = 55;
 
 %% Load and Preprocess data
-for subject = 1%1:8
+for subject = 3 %1:8
     clear EEG
     clear X_EEG_TRAIN
     clear X_EEG_TEST
@@ -24,17 +24,17 @@ for subject = 1%1:8
     % Load data and import into EEGlab format
     LOAD_PATH = fullfile('data', 'data_raw', ['Subject_', num2str(subject), '.mat']);
     load(LOAD_PATH);
-    EEG = pop_importdata('data', 'X_EEG_TRAIN', 'srate', 1000, 'xmin', -.2);
+    EEG = pop_importdata('data', 'X_EEG_TRAIN', 'srate', 1000, 'xmin', -.2, 'chanlocs', 'standard60.loc');
+
+    % remove channel baseline means from each channel 
+    EEG = pop_rmbase(EEG, (1:200));
     
-    % Filter data
-    % How should we handle filtering? Using fft because getting error for
-    % short epochs when using fir? When filtering epochs, converts to
-    % continuous?
-    pop_spectopo(EEG)
-    EEG = pop_eegfilt(EEG, .1, 55, [], 0, 1, 0, [], 0);
+    % remove bad channels
+    [EEG, indelec, measure, com] = pop_rejchan(EEG, 'elec', (1:EEG.nbchan), 'threshold', 3, 'measure', 'kurt', 'norm', 'on');
     
-    % CAR filter?
-    
+    % remove eye-blinks
+%     ICA = pop_runica(EEG, 'concatenate', 'off');
+%     ICA = pop_selectcomps(ICA, (1:20));
     
     if SAVE_DATA
         SAVE_PATH = fullfile('data', ['data_v' num2str(PROCESSED_DATA_VERSION)], ['Subject_', num2str(subject), '.mat']);
