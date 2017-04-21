@@ -47,8 +47,8 @@ for subject = 1:8
 %     end
     
     %% DIMENSIONALITY REDUCTION V2
-    % only use data from the times indicated in the sajda paper
-    tmp1 = EEG.data(:,380:650,:);
+    % only use data from the times indicated in the sajda paper (180-250ms, 330-450ms)
+    tmp1 = EEG.data(:,[380:650],:);
     
     % downsample the data
     tmp2 = zeros(size(tmp1,1), ceil(size(tmp1,2)/4), size(tmp1, 3));
@@ -66,7 +66,8 @@ for subject = 1:8
     
     [coeff,score,latent,tsquared,explained,mu] = pca(X);
     X_flattened = score;
-    X_flattened = X_flattened(:,1:10);
+    X_flattened = X_flattened(:,1:8); % empirically found that 1:8 worked best
+    
     %% LR
     pi_hat = zeros(EEG.trials, 2);
     for i = 1:EEG.trials
@@ -96,6 +97,8 @@ for subject = 1:8
     disp(['AUC: ', num2str(AUC)])
     AUCs(subject) = AUC;
 end
+disp(['mean of AUCs: ', num2str(mean(AUCs))])
+disp(['mean of AUCs(2:8): ', num2str(mean(AUCs(2:8)))])
 
 disp('done')
 
