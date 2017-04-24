@@ -2,7 +2,7 @@ clear all; close all; clc;
 
 %% SETTINGS
 % Load Settings
-PROCESSED_DATA_VERSION = 1;
+PROCESSED_DATA_VERSION = 3;
 
 %% Load data and build classifier
 AUCs = zeros(8,1);
@@ -46,41 +46,42 @@ for subject = 1:8
 %         end
 %     end
     
-    %% DIMENSIONALITY REDUCTION V2
-    % only use data from the times indicated in the sajda paper (180-250ms, 330-450ms)
-    tmp1 = EEG.data(:,[380:650],:);
     
-    % downsample the data
-    tmp2 = zeros(size(tmp1,1), ceil(size(tmp1,2)/4), size(tmp1, 3));
-    for i = 1:EEG.trials
-        for j = 1:EEG.nbchan
-            tmp2(j,:,i) = downsample(tmp1(j,:,i), 4); 
-        end
-    end
-    
-    % reshape the data to be trials by (channels*samples)
-    X = zeros(EEG.trials, size(tmp2,1)*size(tmp2,2));
-    for i = 1:EEG.trials
-        X(i,:) = reshape(tmp2(:,:,i), 1, size(tmp2,1)*size(tmp2,2));
-    end
-    
-    [coeff,score,latent,tsquared,explained,mu] = pca(X);
-    X_flattened = score;
-    X_flattened = X_flattened(:,1:8); % empirically found that 1:8 worked best
+%     %% PCA DIMENSIONALITY REDUCTION
+%     % only use data from the times indicated in the sajda paper (180-250ms, 330-450ms)
+%     tmp1 = EEG.data(:,[380:650],:);
+%     
+%     % downsample the data
+%     tmp2 = zeros(size(tmp1,1), ceil(size(tmp1,2)/4), size(tmp1, 3));
+%     for i = 1:EEG.trials
+%         for j = 1:EEG.nbchan
+%             tmp2(j,:,i) = downsample(tmp1(j,:,i), 4); 
+%         end
+%     end
+%     
+%     % reshape the data to be trials by (channels*samples)
+%     X = zeros(EEG.trials, size(tmp2,1)*size(tmp2,2));
+%     for i = 1:EEG.trials
+%         X(i,:) = reshape(tmp2(:,:,i), 1, size(tmp2,1)*size(tmp2,2));
+%     end
+%     
+%     [coeff,score,latent,tsquared,explained,mu] = pca(X);
+%     X_flattened = score;
+%     X_flattened = X_flattened(:,1:8); % empirically found that 1:8 worked best
     
     %% LR
     pi_hat = zeros(EEG.trials, 2);
     for i = 1:EEG.trials
         
         %leave out the validation trial
-        X = X_flattened;
+        X = X_train(:,1:8);
         X(i,:) = [];
         Y = Y_EEG_TRAIN;
         Y(i,:) = [];
         Y = Y+1;
 
         B = mnrfit(X,Y);
-        pi_hat(i,:) = mnrval(B, X_flattened(i,:));
+        pi_hat(i,:) = mnrval(B, X_train(i,1:8));
         
     end
     
